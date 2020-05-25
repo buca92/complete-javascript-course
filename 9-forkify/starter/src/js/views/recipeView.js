@@ -7,16 +7,17 @@ export const clearIngredients = () => document.querySelector(`.${elementStrings.
 
 const formatCount = count => {
     if (count) {
-        const [int, dec] = count.toString().split('.').map(item => +item);
+        const roundedCount = Math.round(count * 10000) / 10000;
+        const [int, dec] = roundedCount.toString().split('.').map(item => +item);
 
-        if (!dec) return count;
+        if (!dec) return roundedCount;
 
         if (int === 0) {
-            const fr = new Fraction(count);
+            const fr = new Fraction(roundedCount);
 
             return `${fr.numerator}/${fr.denominator}`;
         } else {
-            const fr = new Fraction(count - int);
+            const fr = new Fraction(roundedCount - int);
 
             return `${int} ${fr.numerator}/${fr.denominator}`;
         }

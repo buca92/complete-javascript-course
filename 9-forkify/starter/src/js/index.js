@@ -18,9 +18,6 @@ import { elements, renderLoader, clearLoader } from './views/base';
  */
 const state = {};
 
-// TODO: TESTING
-window.state = state;
-
 /**
  * SEARCH CONTROLLER
  */
@@ -75,8 +72,7 @@ elements.searchResultPages.addEventListener('click', e => {
  */
 const controlRecipe = async () => {
     const id = window.location.hash.replace('#', '');
-    console.log(id)
-
+    
     if (id) {
         // prepare UI for changes
         renderLoader(elements.recipe);
