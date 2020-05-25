@@ -4,11 +4,13 @@ export const elements = {
     searchResultList: document.querySelector('.results__list'),
     searchResults: document.querySelector('.results'),
     searchResultPages: document.querySelector('.results__pages'),
-    recipe: document.querySelector('.recipe')
+    recipe: document.querySelector('.recipe'),
+    shopping: document.querySelector('.shopping__list')
 };
 
 export const elementStrings = {
-    loader: 'loader'
+    loader: 'loader',
+    recipeIngredientsList: 'recipe__ingredient-list'
 }
 
 export const renderLoader = parent => {
