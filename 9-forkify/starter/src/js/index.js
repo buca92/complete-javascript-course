@@ -1,9 +1,11 @@
 import Search from './models/Search';
 import Recipe from './models/Recipe';
 import List from './models/List';
+import Likes from './models/Likes';
 import * as searchView from './views/searchView';
 import * as recipeView from './views/recipeView';
 import * as listView from './views/listView';
+import * as likesView from './views/likesView';
 import { elements, renderLoader, clearLoader } from './views/base';
 
 /**
@@ -99,7 +101,7 @@ const controlRecipe = async () => {
             // render recipe
             clearLoader();
             recipeView.clearRecipe();
-            recipeView.renderRecipe(state.recipe);
+            recipeView.renderRecipe(state.recipe, state.likes.isLiked(id));
         } catch (error) {
             alert('Error processing recipe!');
         }
@@ -122,6 +124,37 @@ const controlList = () => {
     });
 }
 
+/**
+ * LIKE CONTROLLER
+ */
+const controlLike = () => {
+    if (!state.likes) state.likes = new Likes();
+    const currentId = state.recipe.id;
+    
+    // user has not yet liked current recipe
+    if (!state.likes.isLiked(currentId)) {
+        // add like to the state
+        const newLike = state.likes.addLike(currentId, state.recipe.title, state.recipe.author, state.recipe.img);
+
+        // toggle the like button
+        likesView.toggleLikeButton(true);
+
+        // add to the UI list
+        likesView.renderLike(newLike);
+    } else {
+        // remove like from the state
+        state.likes.deleteLike(currentId);
+
+        // toggle the like button
+        likesView.toggleLikeButton(false);
+
+        // remove from the UI list
+        likesView.deleteLike(currentId);
+    }
+
+    likesView.toggleLikeMenu(state.likes.getNumLikes());
+};
+
 // Handle delete and update list items events
 elements.shopping.addEventListener('click', e => {
     const id = e.target.closest('.shopping__item').dataset.itemid;
@@ -139,6 +172,20 @@ elements.shopping.addEventListener('click', e => {
     }
 });
 
+// Restore liked recipes on page load
+window.addEventListener('load', () => {
+    state.likes = new Likes();
+    
+    // restore likes
+    state.likes.readStorage();
+
+    // toggle like menu button
+    likesView.toggleLikeMenu(state.likes.getNumLikes());
+
+    // render the existing likes
+    state.likes.likes.forEach(like => likesView.renderLike(like));
+});
+
 // Handling recipe button clicks
 elements.recipe.addEventListener('click', e => {
     if (e.target.matches('.btn-decrease, .btn-decrease *')) { // either .btn-decrease or any child (*) of .btn-decrease
@@ -150,7 +197,11 @@ elements.recipe.addEventListener('click', e => {
         // increase button is clicked
         state.recipe.updateServings('inc');
     } else if (e.target.matches('.recipe__btn-add, .recipe__btn-add *')) { // either .recipe__btn-add or any child (*) of .recipe__btn-add
+        // add ingredients to shopping list
         controlList();
+    } else if (e.target.matches('.recipe__love, .recipe__love *')) { // either .recipe__love or any child (*) of .recipe__love
+        // like controller
+        controlLike();
     }
 
     recipeView.updateServingsIngredients(state.recipe);
